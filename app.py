@@ -22,8 +22,8 @@ os.makedirs(CERTIFICATES_FOLDER, exist_ok=True)
 # Configure email settings
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
-SENDER_EMAIL = 'vnikhar01@gmail.com'
-SENDER_PASSWORD = 'Cocoa@2024'
+SENDER_EMAIL = 'abc@gmail.com'
+SENDER_PASSWORD = 'abc@2024'
 
 @app.route('/')
 def index():
