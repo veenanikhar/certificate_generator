@@ -27,6 +27,7 @@ def generate_certificate(name, position):
     # Draw name and position
     name_text = f"Name: {name}"
     position_text = f"Position: {position}"
+    print(name_text)
 
     draw.text((name_x, name_y), name_text, font=font_position, fill="black")
     draw.text((position_x, position_y), position_text, font=font_position, fill="black")

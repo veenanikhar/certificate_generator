@@ -49,57 +49,66 @@ def upload():
             # Generate the certificate
             cert_path = generate_certificate(name, position)
 
-            # Send the certificate via email
-            send_certificate(email, cert_path)
-
+        # Send the certificate via email
+        send_certificate(email, cert_path)
         flash('Certificates have been sent successfully!')
         return redirect(url_for('index'))
 
 def generate_certificate(name, position):
-    # Load the certificate template
-    template_path = 'certificate_template.png'
-    image = Image.open(template_path)
-    draw = ImageDraw.Draw(image)
+    # Create a blank white image as the base for the certificate
+    width, height = 1200, 800
+    certificate = Image.new('RGB', (width, height), 'white')
 
-    # Define the font and size
-    font_path = "arial.ttf"  # Ensure this path is correct
-    font_name = ImageFont.truetype(font_path, 40)
-    font_position = ImageFont.truetype(font_path, 30)
+    # Set font paths and sizes (Update the paths with the correct paths on your system)
+    title_font_path = 'C:/Windows/Fonts/Arialbd.ttf'  # Example path for bold font
+    content_font_path = 'C:/Windows/Fonts/Arial.ttf'  # Example path for regular font
 
-    # Helper function to center text
-    def draw_centered_text(draw, text, font, y_position):
-        # Use textbbox to get bounding box
-        bbox = draw.textbbox((0, 0), text, font=font)
-        text_width = bbox[2] - bbox[0]
-        text_x = (image.width - text_width) / 2
-        text_y = y_position
-        draw.text((text_x, text_y), text, font=font, fill="black")
+    try:
+        # Load fonts
+        title_font = ImageFont.truetype(title_font_path, 80)
+        content_font = ImageFont.truetype(content_font_path, 50)
+        signature_font = ImageFont.truetype(content_font_path, 40)
+    except OSError as e:
+        print(f"Font file not found: {e}")
+        return None  # Return None if there's an error
 
-    # Draw the certificate title
+    # Initialize ImageDraw
+    draw = ImageDraw.Draw(certificate)
+
+    # Add Certificate title
     title_text = "Certificate of Achievement"
-    draw_centered_text(draw, title_text, font_name, 50)
+    title_bbox = draw.textbbox((0, 0), title_text, font=title_font)
+    title_width = title_bbox[2] - title_bbox[0]
+    draw.text(((width - title_width) / 2, 50), title_text, font=title_font, fill='black')
 
-    # Draw "This is to certify that" text
-    subtitle_text = "This is to certify that"
-    draw_centered_text(draw, subtitle_text, font_name, 150)
+    # Add the main content of the certificate
+    cert_body = "This is to certify that"
+    cert_body_bbox = draw.textbbox((0, 0), cert_body, font=content_font)
+    cert_body_width = cert_body_bbox[2] - cert_body_bbox[0]
+    draw.text(((width - cert_body_width) / 2, 200), cert_body, font=content_font, fill='black')
 
-    # Draw placeholders for name and position
+    # Add the name
     name_text = f"Name: {name}"
+    name_bbox = draw.textbbox((0, 0), name_text, font=content_font)
+    draw.text(((width - name_bbox[2] + name_bbox[0]) / 2, 300), name_text, font=content_font, fill='black')
+
+    # Add the position
     position_text = f"Position: {position}"
+    position_bbox = draw.textbbox((0, 0), position_text, font=content_font)
+    draw.text(((width - position_bbox[2] + position_bbox[0]) / 2, 400), position_text, font=content_font, fill='black')
 
-    # Adjust y_positions based on your template design
-    draw_centered_text(draw, name_text, font_position, 250)
-    draw_centered_text(draw, position_text, font_position, 300)
-
-    # Add a signature line
+    # Add signature line
     signature_text = "Signature: ____________________"
-    draw_centered_text(draw, signature_text, font_position, image.height - 100)
+    signature_bbox = draw.textbbox((0, 0), signature_text, font=signature_font)
+    draw.text(((width - signature_bbox[2] + signature_bbox[0]) / 2, 600), signature_text, font=signature_font, fill='black')
 
-    # Save the certificate
-    cert_path = os.path.join(CERTIFICATES_FOLDER, f"{name}_certificate.png")
-    image.save(cert_path)
+    # Save the generated certificate
+    output_path = os.path.join(CERTIFICATES_FOLDER, f"{name.replace(' ', '_')}_certificate.png")
+    certificate.save(output_path)
+    print(f"Certificate saved at {output_path}")
 
-    return cert_path
+    return output_path  # Ensure the function returns the certificate path
+
 
 def send_certificate(to_email, cert_path):
     # Setup the MIME
